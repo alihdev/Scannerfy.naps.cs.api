@@ -1,4 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using NAPS2.Images;
+using NAPS2.Images.Gdi;
+using NAPS2.Scan;
+using Scannerfy.Api.Dtos;
 
 namespace Scannerfy.Api.Controllers;
 
@@ -14,8 +18,81 @@ public class ScannerfyController : ControllerBase
     }
 
     [HttpGet(Name = "GetScanners")]
-    public object Get()
+    public async Task<List<ScanDevice>> GetAllDevicesAsync()
     {
-        return "Hello world";
+        var controller = GetScanController();
+
+        List<ScanDevice> devices = await controller.GetDeviceList();
+
+        return devices;
+    }
+
+    [HttpPost(Name = "GetImages")]
+    public async Task<IActionResult> GetImagesFromScanner(ScanOptionsDto scanOptions)
+    {
+        var images = await ScanAndGetImages(scanOptions);
+
+        if (images.Count == 0)
+        {
+            throw new Exception(RepsonseCode.IMAGES_404.ToString());
+        }
+
+        foreach (var image in images)
+        {
+            var imagePage = images.IndexOf(image) + 1;
+            image.Save($"page_{imagePage}.jpg");
+        }
+
+        // TODO: export multi file ?
+        using var stream = new MemoryStream();
+        images[0].Save(stream, ImageFileFormat.Jpeg);
+        var fileBytes = stream.ToArray();
+
+        return File(fileBytes, "image/jpeg", "ScannedDocument.jpg");
+    }
+
+    private async Task<List<ProcessedImage>> ScanAndGetImages(ScanOptionsDto inputScanOptions)
+    {
+        var controller = GetScanController();
+
+        var scanOptions = new ScanOptions
+        {
+            Device = inputScanOptions.Device,
+            PaperSource = inputScanOptions.PaperSource,
+            PageSize = PageSize.A4,
+            Dpi = inputScanOptions.Dpi
+        };
+
+        try
+        {
+            var images = await controller.Scan(scanOptions).ToListAsync();
+
+            return images;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message, ex);
+
+            if (ex.Message.Contains("Offline", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new Exception(RepsonseCode.DEVICE_OFFLINE.ToString());
+            }
+
+            if (ex.Message.Contains("Device.ID", StringComparison.OrdinalIgnoreCase) && ex.Message.Contains("Specified", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new Exception(RepsonseCode.DEVICE_404.ToString());
+            }
+
+            throw new Exception(RepsonseCode.DEVICE_ISSUE.ToString());
+        }
+    }
+
+    private static ScanController GetScanController()
+    {
+        var imageContext = new GdiImageContext();
+        using var scanningContext = new ScanningContext(imageContext);
+        var controller = new ScanController(scanningContext);
+
+        return controller;
     }
 }
