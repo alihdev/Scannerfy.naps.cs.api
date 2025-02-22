@@ -1,4 +1,5 @@
 ﻿using Scalar.AspNetCore;
+using Scannerfy.Api.Shared;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,16 +36,25 @@ var configuration = app.Services.GetRequiredService<IConfiguration>();
 var url = configuration["AppURL"] ?? throw new Exception("AppURL 404");
 app.Urls.Add(url);
 
+var port = url.Split(":").Last();
+
 // Print logs
 Log.Information(
     "Welcome to Scannerfy! " +
-    url.Split(":").Last() +
+    "Listing on port: " + port +
     "\n" +
     //"\r\n   _____  _____          _   _ _   _ ______ _____  ________     __\r\n  / ____|/ ____|   /\\   | \\ | | \\ | |  ____|  __ \\|  ____\\ \\   / /\r\n | (___ | |       /  \\  |  \\| |  \\| | |__  | |__) | |__   \\ \\_/ / \r\n  \\___ \\| |      / /\\ \\ | . ` | . ` |  __| |  _  /|  __|   \\   /  \r\n  ____) | |____ / ____ \\| |\\  | |\\  | |____| | \\ \\| |       | |   \r\n |_____/ \\_____/_/    \\_|_| \\_|_| \\_|______|_|  \\_|_|       |_|   \r\n                                                                  \r\n                                                                  \r\n" +
     "\r\n  /******  /******  /****** /**   /**/**   /**/********/******* /********/**     /**\r\n /**__  **/**__  **/**__  *| *** | *| *** | *| **_____| **__  *| **_____|  **   /**/\r\n| **  \\__| **  \\__| **  \\ *| ****| *| ****| *| **     | **  \\ *| **      \\  ** /**/ \r\n|  ******| **     | *******| ** ** *| ** ** *| *****  | *******| *****    \\  ****/  \r\n \\____  *| **     | **__  *| **  ***| **  ***| **__/  | **__  *| **__/     \\  **/   \r\n /**  \\ *| **    *| **  | *| **\\  **| **\\  **| **     | **  \\ *| **         | **    \r\n|  ******|  ******| **  | *| ** \\  *| ** \\  *| *******| **  | *| **         | **    \r\n \\______/ \\______/|__/  |__|__/  \\__|__/  \\__|________|__/  |__|__/         |__/    \r\n" +
     "\n" +
     "Keep the application open while scanning."
 );
+
+var isPortUsed = Utils.IsPortInUse(int.Parse(port));
+
+if (isPortUsed)
+{
+    Log.Error("Port is already in use. Please free the port and rerun Scannerfy! \n");
+}
 
 
 // Configure the HTTP request pipeline.
