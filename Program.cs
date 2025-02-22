@@ -19,7 +19,7 @@ builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
     .Filter.ByExcluding(logEvent =>
     {
-        if (logEvent.MessageTemplate.Text.Contains("Welcome to Scannerfy!")) return false;
+        if (logEvent.MessageTemplate.Text.Contains("Scannerfy!")) return false;
 
         // Do not exclude this log event
         return true;
