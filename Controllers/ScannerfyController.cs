@@ -17,7 +17,7 @@ public class ScannerfyController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet(Name = "GetScanners")]
+    [HttpGet("Devices")]
     public async Task<List<ScanDevice>> GetAllDevicesAsync()
     {
         var controller = GetScanController();
@@ -27,7 +27,7 @@ public class ScannerfyController : ControllerBase
         return devices;
     }
 
-    [HttpPost(Name = "GetImages")]
+    [HttpPost("Scan-Images")]
     public async Task<IActionResult> GetImagesFromScanner(ScanOptionsDto scanOptions)
     {
         var images = await ScanAndGetImages(scanOptions);
