@@ -3,6 +3,7 @@ using NAPS2.Images;
 using NAPS2.Images.Gdi;
 using NAPS2.Scan;
 using Scannerfy.Api.Dtos;
+using Scannerfy.Api.Exceptions;
 
 namespace Scannerfy.Api.Controllers;
 
@@ -34,7 +35,7 @@ public class ScannerfyController : ControllerBase
 
         if (images.Count == 0)
         {
-            throw new Exception(RepsonseCode.IMAGES_404.ToString());
+            throw new UserFriendlyException(RepsonseCode.IMAGES_404.ToString());
         }
 
         foreach (var image in images)
@@ -75,15 +76,15 @@ public class ScannerfyController : ControllerBase
 
             if (ex.Message.Contains("Offline", StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception(RepsonseCode.DEVICE_OFFLINE.ToString());
+                throw new UserFriendlyException(RepsonseCode.DEVICE_OFFLINE.ToString());
             }
 
             if (ex.Message.Contains("Device.ID", StringComparison.OrdinalIgnoreCase) && ex.Message.Contains("Specified", StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception(RepsonseCode.DEVICE_404.ToString());
+                throw new UserFriendlyException(RepsonseCode.DEVICE_404.ToString());
             }
 
-            throw new Exception(RepsonseCode.DEVICE_ISSUE.ToString());
+            throw new UserFriendlyException(RepsonseCode.DEVICE_ISSUE.ToString());
         }
     }
 
