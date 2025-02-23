@@ -1,4 +1,5 @@
 ﻿using Scalar.AspNetCore;
+using Scannerfy.Api.Exceptions;
 using Scannerfy.Api.Shared;
 using Serilog;
 
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddExceptionHandler<ExceptionsHandler>();
 
 // Configure Serilog
 builder.Host.UseSerilog((ctx, lc) => lc
@@ -68,6 +70,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseExceptionHandler(_ => { });
 app.MapControllers();
 
 app.UseCors(opt =>
