@@ -38,10 +38,17 @@ public class ScannerfyController : ControllerBase
             throw new UserFriendlyException(RepsonseCode.IMAGES_404.ToString());
         }
 
+        var outputDir = Path.Combine(Path.GetTempPath(), "ScannerfyOutput");
+        if (!Directory.Exists(outputDir))
+        {
+            Directory.CreateDirectory(outputDir);
+        }
+
         foreach (var image in images)
         {
             var imagePage = images.IndexOf(image) + 1;
-            image.Save($"page_{imagePage}.jpg");
+            var outputPath = Path.Combine(outputDir, $"page_{imagePage}.jpg");
+            image.Save(outputPath);
         }
 
         // TODO: export multi file ?
