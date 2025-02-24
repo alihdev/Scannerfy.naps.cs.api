@@ -56,6 +56,11 @@ public class ScannerfyController : ControllerBase
         images[0].Save(stream, ImageFileFormat.Jpeg);
         var fileBytes = stream.ToArray();
 
+        foreach (string file in Directory.GetFiles(outputDir))
+        {
+            System.IO.File.Delete(file);
+        }
+
         return File(fileBytes, "image/jpeg", "ScannedDocument.jpg");
     }
 
