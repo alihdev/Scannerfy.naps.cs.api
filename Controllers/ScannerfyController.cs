@@ -39,10 +39,8 @@ public class ScannerfyController : ControllerBase
         }
 
         var outputDir = Path.Combine(Path.GetTempPath(), "ScannerfyOutput");
-        if (!Directory.Exists(outputDir))
-        {
-            Directory.CreateDirectory(outputDir);
-        }
+        
+        if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
 
         foreach (var image in images)
         {
