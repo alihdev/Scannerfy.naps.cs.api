@@ -4,6 +4,7 @@ using NAPS2.Images.Gdi;
 using NAPS2.Scan;
 using Scannerfy.Api.Dtos;
 using Scannerfy.Api.Exceptions;
+using Scannerfy.Api.Shared;
 
 namespace Scannerfy.Api.Controllers;
 

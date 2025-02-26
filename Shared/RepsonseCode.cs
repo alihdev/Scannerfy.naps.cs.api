@@ -1,4 +1,4 @@
-﻿namespace Scannerfy.Api
+﻿namespace Scannerfy.Api.Shared
 {
     public enum RepsonseCode
     {
