@@ -23,8 +23,13 @@ public class ScannerfyController : ControllerBase
     {
         var controller = GetScanController();
 
-        List<ScanDevice> devices = await controller.GetDeviceList();
+        var supportedDrivers = new[] { Driver.Wia, Driver.Twain };
+        var deviceTasks = supportedDrivers.Select(driver => controller.GetDeviceList(driver));
 
+        var devicesPerDriver = await Task.WhenAll(deviceTasks);
+
+        List<ScanDevice> devices = devicesPerDriver.SelectMany(devices => devices).ToList();
+         
         return devices;
     }
 
@@ -102,6 +107,9 @@ public class ScannerfyController : ControllerBase
     {
         var imageContext = new GdiImageContext();
         using var scanningContext = new ScanningContext(imageContext);
+
+        scanningContext.SetUpWin32Worker();
+
         var controller = new ScanController(scanningContext);
 
         return controller;

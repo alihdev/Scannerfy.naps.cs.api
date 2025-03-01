@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
     <PackageReference Include="NAPS2.Images.Gdi" Version="1.1.4" />
     <PackageReference Include="NAPS2.Sdk" Version="1.1.4" />
+    <PackageReference Include="NAPS2.Sdk.Worker.Win32" Version="1.1.4" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.0.18" />
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
