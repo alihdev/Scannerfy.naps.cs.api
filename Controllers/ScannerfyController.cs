@@ -119,6 +119,8 @@ public class ScannerfyController : ControllerBase
         var imageContext = new GdiImageContext();
         using var scanningContext = new ScanningContext(imageContext);
 
+        // Set up the worker; this includes starting a worker process in the background so it will be ready to respond
+        // when we need it, ref: https://github.com/cyanfish/naps2/blob/master/NAPS2.Sdk.Samples/TwainSample.cs
         scanningContext.SetUpWin32Worker();
 
         var controller = new ScanController(scanningContext);
