@@ -24,10 +24,20 @@ public class ScannerfyController : ControllerBase
     {
         var controller = GetScanController();
 
-        var supportedDrivers = new[] { Driver.Wia, Driver.Twain };
-        var deviceTasks = supportedDrivers.Select(driver => controller.GetDeviceList(driver));
+        List<ScanDevice> devices = await GetDeviceListFromSupportedDriverAsync(controller);
 
-        var devicesPerDriver = await Task.WhenAll(deviceTasks);
+        return devices;
+    }
+
+    private static async Task<List<ScanDevice>> GetDeviceListFromSupportedDriverAsync(ScanController? controller)
+    {
+        if (controller == null) return [];
+
+        var supportedDrivers = new[] { Driver.Wia, Driver.Twain };
+
+        var devicesPerDriver = await Task.WhenAll(
+            supportedDrivers.Select(driver => controller.GetDeviceList(driver))
+        );
 
         List<ScanDevice> devices = devicesPerDriver.SelectMany(devices => devices).ToList();
 
@@ -45,7 +55,7 @@ public class ScannerfyController : ControllerBase
         }
 
         var outputDir = Path.Combine(Path.GetTempPath(), "ScannerfyOutput");
-        
+
         if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
 
         foreach (var image in images)
