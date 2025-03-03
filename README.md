@@ -2,7 +2,7 @@
 # using dotnet - [naps sdk](https://github.com/cyanfish/naps2/tree/master/NAPS2.Sdk)
 
 
-# Build Exe Instructions
+# Build exe Instructions
 - create scannerfy-publish folder
 - to publish the project with .net sdk, excute this cmd inside scannerfy api  
 ```
