@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NAPS2.Images;
 using NAPS2.Images.Gdi;
+using NAPS2.Pdf;
 using NAPS2.Scan;
 using Scannerfy.Api.Dtos;
 using Scannerfy.Api.Exceptions;
@@ -13,6 +14,7 @@ namespace Scannerfy.Api.Controllers;
 public class ScannerfyController : ControllerBase
 {
     private readonly ILogger<ScannerfyController> _logger;
+    private static ScanningContext? Context { get; set; }
 
     public ScannerfyController(ILogger<ScannerfyController> logger)
     {
@@ -78,6 +80,38 @@ public class ScannerfyController : ControllerBase
         return File(fileBytes, "image/jpeg", "ScannedDocument.jpg");
     }
 
+    [HttpPost("Scan-Images-As-Pdf")]
+    public async Task<IActionResult> GetImagesAsPdfFromScanner(ScanOptionsDto scanOptions)
+    {
+        var images = await ScanAndGetImages(scanOptions);
+
+        if (images.Count == 0)
+        {
+            throw new UserFriendlyException(RepsonseCode.IMAGES_404.ToString());
+        }
+
+        var outputDir = Path.Combine(Path.GetTempPath(), "ScannerfyOutput");
+
+        if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
+
+        if (Context == null) throw new UserFriendlyException(RepsonseCode.CONTEXT_ISSUE.ToString());
+
+        var pdfExporter = new PdfExporter(Context);
+        var fileName = "ScannedDocument.pdf";
+        var pdfPath = Path.Combine(outputDir, fileName);
+
+        await pdfExporter.Export(pdfPath, images);
+
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(pdfPath);
+
+        foreach (string file in Directory.GetFiles(outputDir))
+        {
+            System.IO.File.Delete(file);
+        }
+
+        return File(fileBytes, "application/pdf", fileName);
+    }
+
     private async Task<List<ProcessedImage>> ScanAndGetImages(ScanOptionsDto inputScanOptions)
     {
         var controller = GetScanController();
@@ -126,6 +160,8 @@ public class ScannerfyController : ControllerBase
         scanningContext.SetUpWin32Worker();
 
         var controller = new ScanController(scanningContext);
+
+        Context = scanningContext;
 
         return controller;
     }
