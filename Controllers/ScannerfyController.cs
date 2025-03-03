@@ -64,13 +64,11 @@ public class ScannerfyController : ControllerBase
 
         foreach (var image in images)
         {
-            // TODO: refactor it ?
             var imagePage = images.IndexOf(image) + 1;
-            var outputPath = Path.Combine(outputDir, $"page_{imagePage}.jpg");
-            image.Save(outputPath);
-
             using var stream = new MemoryStream();
+
             image.Save(stream, ImageFileFormat.Jpeg);
+
             var fileBytes = stream.ToArray();
 
             exportedFiles.Add(File(fileBytes, "image/jpeg", $"ScannedDocument_{imagePage}.jpg"));
