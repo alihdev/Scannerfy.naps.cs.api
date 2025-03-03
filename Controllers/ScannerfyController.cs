@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using NAPS2.Images;
 using NAPS2.Images.Gdi;
 using NAPS2.Pdf;
