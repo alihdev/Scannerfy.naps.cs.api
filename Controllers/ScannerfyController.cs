@@ -56,10 +56,6 @@ public class ScannerfyController : ControllerBase
             throw new UserFriendlyException(RepsonseCode.IMAGES_404.ToString());
         }
 
-        var outputDir = Path.Combine(Path.GetTempPath(), "ScannerfyOutput");
-
-        if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
-
         IList<IActionResult> exportedFiles = [];
 
         foreach (var image in images)
@@ -72,11 +68,6 @@ public class ScannerfyController : ControllerBase
             var fileBytes = stream.ToArray();
 
             exportedFiles.Add(File(fileBytes, "image/jpeg", $"ScannedDocument_{imagePage}.jpg"));
-        }
-
-        foreach (string file in Directory.GetFiles(outputDir))
-        {
-            System.IO.File.Delete(file);
         }
 
         return exportedFiles;
