@@ -47,7 +47,7 @@ public class ScannerfyController : ControllerBase
     }
 
     [HttpPost("Scan-Images")]
-    public async Task<IActionResult> GetImagesFromScanner(ScanOptionsDto scanOptions)
+    public async Task<IList<IActionResult>> GetImagesFromScanner(ScanOptionsDto scanOptions)
     {
         var images = await ScanAndGetImages(scanOptions);
 
@@ -60,24 +60,28 @@ public class ScannerfyController : ControllerBase
 
         if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
 
+        IList<IActionResult> exportedFiles = [];
+
         foreach (var image in images)
         {
+            // TODO: refactor it ?
             var imagePage = images.IndexOf(image) + 1;
             var outputPath = Path.Combine(outputDir, $"page_{imagePage}.jpg");
             image.Save(outputPath);
-        }
 
-        // TODO: export multi file ?
-        using var stream = new MemoryStream();
-        images[0].Save(stream, ImageFileFormat.Jpeg);
-        var fileBytes = stream.ToArray();
+            using var stream = new MemoryStream();
+            image.Save(stream, ImageFileFormat.Jpeg);
+            var fileBytes = stream.ToArray();
+
+            exportedFiles.Add(File(fileBytes, "image/jpeg", $"ScannedDocument_{imagePage}.jpg"));
+        }
 
         foreach (string file in Directory.GetFiles(outputDir))
         {
             System.IO.File.Delete(file);
         }
 
-        return File(fileBytes, "image/jpeg", "ScannedDocument.jpg");
+        return exportedFiles;
     }
 
     [HttpPost("Scan-Images-As-Pdf")]
