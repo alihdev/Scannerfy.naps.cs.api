@@ -56,28 +56,25 @@ public class ScannerfyController : ControllerBase
             throw new UserFriendlyException(RepsonseCode.IMAGES_404.ToString());
         }
 
-        var outputDir = Path.Combine(Path.GetTempPath(), "ScannerfyOutput");
-
-        if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
+        IList<FileContentResult> exportedFiles = [];
 
         foreach (var image in images)
         {
             var imagePage = images.IndexOf(image) + 1;
-            var outputPath = Path.Combine(outputDir, $"page_{imagePage}.jpg");
-            image.Save(outputPath);
+            using var stream = new MemoryStream();
+
+            // Save image to stream
+            image.Save(stream, ImageFileFormat.Jpeg);
+
+            // Reset stream position
+            stream.Position = 0;
+
+            var fileBytes = stream.ToArray();
+
+            exportedFiles.Add(File(fileBytes, "image/jpeg", $"ScannedDocument_{imagePage}.jpg"));
         }
 
-        // TODO: export multi file ?
-        using var stream = new MemoryStream();
-        images[0].Save(stream, ImageFileFormat.Jpeg);
-        var fileBytes = stream.ToArray();
-
-        foreach (string file in Directory.GetFiles(outputDir))
-        {
-            System.IO.File.Delete(file);
-        }
-
-        return File(fileBytes, "image/jpeg", "ScannedDocument.jpg");
+        return Ok(exportedFiles);
     }
 
     [HttpPost("Scan-Images-As-Pdf")]
