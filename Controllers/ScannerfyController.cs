@@ -155,6 +155,8 @@ public class ScannerfyController : ControllerBase
 
         // Set up the worker; this includes starting a worker process in the background so it will be ready to respond
         // when we need it, ref: https://github.com/cyanfish/naps2/blob/master/NAPS2.Sdk.Samples/TwainSample.cs
+        // Note: When scanning with Canon scanners using the TWAIN protocol, an alert displaying "Unknown Error Code 27" as added below may appear after clicking OK. Despite this, the scanning process continues, and the scanned images are returned successfully. Additionally, Brother scanners operate without any errors.
+        // Ref: https://github.com/cyanfish/naps2/blob/master/NAPS2.Sdk.Samples/TwainSample.cs
         scanningContext.SetUpWin32Worker();
 
         var controller = new ScanController(scanningContext);
