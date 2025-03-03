@@ -95,13 +95,6 @@ public class ScannerfyController : ControllerBase
 
         if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
 
-        foreach (var image in images)
-        {
-            var imagePage = images.IndexOf(image) + 1;
-            var outputPath = Path.Combine(outputDir, $"page_{imagePage}.jpg");
-            image.Save(outputPath);
-        }
-
         // Scan and save PDF
         if (Context == null) throw new UserFriendlyException(RepsonseCode.CONTEXT_ISSUE.ToString());
 
