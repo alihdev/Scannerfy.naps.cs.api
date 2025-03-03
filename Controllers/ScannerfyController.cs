@@ -47,7 +47,7 @@ public class ScannerfyController : ControllerBase
     }
 
     [HttpPost("Scan-Images")]
-    public async Task<IList<IActionResult>> GetImagesFromScanner(ScanOptionsDto scanOptions)
+    public async Task<IActionResult> GetImagesFromScanner(ScanOptionsDto scanOptions)
     {
         var images = await ScanAndGetImages(scanOptions);
 
@@ -56,7 +56,7 @@ public class ScannerfyController : ControllerBase
             throw new UserFriendlyException(RepsonseCode.IMAGES_404.ToString());
         }
 
-        IList<IActionResult> exportedFiles = [];
+        IList<FileContentResult> exportedFiles = [];
 
         foreach (var image in images)
         {
@@ -74,7 +74,7 @@ public class ScannerfyController : ControllerBase
             exportedFiles.Add(File(fileBytes, "image/jpeg", $"ScannedDocument_{imagePage}.jpg"));
         }
 
-        return exportedFiles;
+        return Ok(exportedFiles);
     }
 
     [HttpPost("Scan-Images-As-Pdf")]
