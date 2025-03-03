@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using NAPS2.Images;
 using NAPS2.Images.Gdi;
+using NAPS2.Pdf;
 using NAPS2.Scan;
 using Scannerfy.Api.Dtos;
 using Scannerfy.Api.Exceptions;
@@ -13,6 +15,7 @@ namespace Scannerfy.Api.Controllers;
 public class ScannerfyController : ControllerBase
 {
     private readonly ILogger<ScannerfyController> _logger;
+    private static ScanningContext? Context { get; set; }
 
     public ScannerfyController(ILogger<ScannerfyController> logger)
     {
@@ -78,6 +81,39 @@ public class ScannerfyController : ControllerBase
         return File(fileBytes, "image/jpeg", "ScannedDocument.jpg");
     }
 
+    [HttpPost("Scan-Images-As-Pdf")]
+    public async Task<IActionResult> GetImagesAsPdfFromScanner(ScanOptionsDto scanOptions)
+    {
+        var images = await ScanAndGetImages(scanOptions);
+
+        if (images.Count == 0)
+        {
+            throw new UserFriendlyException(RepsonseCode.IMAGES_404.ToString());
+        }
+
+        var outputDir = Path.Combine(Path.GetTempPath(), "ScannerfyOutput");
+
+        if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
+
+        foreach (var image in images)
+        {
+            var imagePage = images.IndexOf(image) + 1;
+            var outputPath = Path.Combine(outputDir, $"page_{imagePage}.jpg");
+            image.Save(outputPath);
+        }
+
+        // Scan and save PDF
+        if (Context == null) throw new UserFriendlyException(RepsonseCode.CONTEXT_ISSUE.ToString());
+
+        var pdfExporter = new PdfExporter(Context);
+
+
+        // TODO: export to outputDir then download it as pdf
+        await pdfExporter.Export("sann.pdf", images);
+
+        throw new NotImplementedException();
+    }
+
     private async Task<List<ProcessedImage>> ScanAndGetImages(ScanOptionsDto inputScanOptions)
     {
         var controller = GetScanController();
@@ -124,6 +160,8 @@ public class ScannerfyController : ControllerBase
         scanningContext.SetUpWin32Worker();
 
         var controller = new ScanController(scanningContext);
+
+        Context = scanningContext;
 
         return controller;
     }

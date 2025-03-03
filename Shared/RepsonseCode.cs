@@ -6,5 +6,6 @@
         DEVICE_404,
         DEVICE_OFFLINE,
         DEVICE_ISSUE,
+        CONTEXT_ISSUE,
     }
 }
