@@ -63,7 +63,11 @@ public class ScannerfyController : ControllerBase
             var imagePage = images.IndexOf(image) + 1;
             using var stream = new MemoryStream();
 
+            // Save image to stream
             image.Save(stream, ImageFileFormat.Jpeg);
+
+            // Reset stream position
+            stream.Position = 0;
 
             var fileBytes = stream.ToArray();
 
