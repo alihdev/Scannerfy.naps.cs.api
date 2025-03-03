@@ -98,7 +98,8 @@ public class ScannerfyController : ControllerBase
         if (Context == null) throw new UserFriendlyException(RepsonseCode.CONTEXT_ISSUE.ToString());
 
         var pdfExporter = new PdfExporter(Context);
-        var pdfPath = Path.Combine(outputDir, "ScannedDocument.pdf");
+        var fileName = "ScannedDocument.pdf";
+        var pdfPath = Path.Combine(outputDir, fileName);
 
         await pdfExporter.Export(pdfPath, images);
 
@@ -109,7 +110,7 @@ public class ScannerfyController : ControllerBase
             System.IO.File.Delete(file);
         }
 
-        return File(fileBytes, "application/pdf", "ScannedDocument.pdf");
+        return File(fileBytes, "application/pdf", fileName);
     }
 
     private async Task<List<ProcessedImage>> ScanAndGetImages(ScanOptionsDto inputScanOptions)
