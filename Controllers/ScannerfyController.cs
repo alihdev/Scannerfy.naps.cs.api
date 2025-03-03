@@ -95,11 +95,9 @@ public class ScannerfyController : ControllerBase
 
         if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
 
-        // Scan and save PDF
         if (Context == null) throw new UserFriendlyException(RepsonseCode.CONTEXT_ISSUE.ToString());
 
         var pdfExporter = new PdfExporter(Context);
-
 
         // TODO: export to outputDir then download it as pdf
         await pdfExporter.Export("sann.pdf", images);
