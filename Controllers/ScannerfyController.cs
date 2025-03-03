@@ -98,11 +98,18 @@ public class ScannerfyController : ControllerBase
         if (Context == null) throw new UserFriendlyException(RepsonseCode.CONTEXT_ISSUE.ToString());
 
         var pdfExporter = new PdfExporter(Context);
+        var pdfPath = Path.Combine(outputDir, "ScannedDocument.pdf");
 
-        // TODO: export to outputDir then download it as pdf
-        await pdfExporter.Export("sann.pdf", images);
+        await pdfExporter.Export(pdfPath, images);
 
-        throw new NotImplementedException();
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(pdfPath);
+
+        foreach (string file in Directory.GetFiles(outputDir))
+        {
+            System.IO.File.Delete(file);
+        }
+
+        return File(fileBytes, "application/pdf", "ScannedDocument.pdf");
     }
 
     private async Task<List<ProcessedImage>> ScanAndGetImages(ScanOptionsDto inputScanOptions)
